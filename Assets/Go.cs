@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Go : MonoBehaviour
 {
@@ -14,6 +15,10 @@ public class Go : MonoBehaviour
 
     [SerializeField]private float m_turnRate = 30;
     [SerializeField]private float m_horsePower = 300;
+    // [SerializeField]private float m_topSpeed = 30;
+    [SerializeField]private float m_squadTightness = 10;
+
+    [SerializeField]private List<GameObject> m_wingMen = null;
 
 
     void Start()
@@ -38,9 +43,9 @@ public class Go : MonoBehaviour
 
     void FixedUpdate()
     {
-
+        StayInFormation();
+        ApplyThrottle(1);
     }
-
 
     void Update()
     {
@@ -52,17 +57,23 @@ public class Go : MonoBehaviour
         }
 
         gameObject.transform.rotation = m_rotation;
-
-        ApplyThrottle(1);
     }
+
+
+
+
+
 
 
     private void TurnToBearing(Vector3 destination)
     {
-        SetBearing(m_destination);
-        Quaternion compDirection = m_bearing.transform.rotation;
-        float smoothTurn = (Quaternion.Angle(gameObject.transform.rotation, compDirection) * m_turnRate) * Time.deltaTime;
-        m_rotation = Quaternion.RotateTowards(gameObject.transform.rotation, compDirection, smoothTurn);
+        if (m_destination != null)
+        {
+            SetBearing(m_destination);
+            Quaternion compDirection = m_bearing.transform.rotation;
+            float smoothTurn = (Quaternion.Angle(gameObject.transform.rotation, compDirection) * m_turnRate) * Time.deltaTime;
+            m_rotation = Quaternion.RotateTowards(gameObject.transform.rotation, compDirection, smoothTurn);
+        }
     }
 
     private void SetBearing(Vector3 destination)
@@ -79,7 +90,10 @@ public class Go : MonoBehaviour
     {
         m_rotation = transform.rotation;
         m_position = transform.position;
-        m_destination = m_destObject.transform.position;
+        if (m_destination != null)
+        {
+            m_destination = m_destObject.transform.position;
+        }
         SetGravity();
     }
 
@@ -108,6 +122,50 @@ public class Go : MonoBehaviour
 
     private void ApplyThrottle(float throttle)
     {
-        m_rigidBody.AddForce((gameObject.transform.forward * m_horsePower * throttle) * Time.deltaTime, ForceMode.Impulse);
+        // if (m_rigidBody.velocity.magnitude < m_topSpeed)
+        {
+            if (m_debugRays)
+            {
+                Debug.Log("current velocity = " + m_rigidBody.velocity.magnitude);
+            }
+            m_rigidBody.AddForce((gameObject.transform.forward * m_horsePower * throttle) * Time.fixedDeltaTime, ForceMode.Impulse);
+        }
     }
+
+
+    private void StayInFormation()
+    {
+        if (m_wingMen != null)
+        {
+
+            GameObject wingMan = m_wingMen[0];
+            float distance = Vector3.Distance(gameObject.transform.position, wingMan.transform.position);
+            if (m_wingMen.Count > 1)
+            {
+                for (int i = 1; i < m_wingMen.Count; i++)
+                {
+                    if (Vector3.Distance(gameObject.transform.position, m_wingMen[i].transform.position) < distance)
+                        wingMan = m_wingMen[i];
+                }
+            }
+            distance = Vector3.Distance(gameObject.transform.position, wingMan.transform.position);
+            // if (location != Vector3.zero)
+            {
+                Vector3 direction = wingMan.transform.position - gameObject.transform.position;
+                float vectoringAmount = distance - m_squadTightness;
+                VectoringThrust(direction, vectoringAmount);
+                if (m_debugRays)
+                {
+                    Debug.DrawRay(gameObject.transform.position, direction, Color.red);
+                }
+            }
+        }
+    }
+
+    private void VectoringThrust(Vector3 direction, float amount)
+    {
+        m_rigidBody.AddForce(direction.normalized * (amount * Time.fixedDeltaTime), ForceMode.Impulse);
+    }
+
+
 }
