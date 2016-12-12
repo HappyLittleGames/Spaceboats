@@ -23,7 +23,7 @@ namespace Assets.BHTree
                         }
                         return status;
                     }
-                    if (++m_sequence == ChildCount)
+                    if (++m_sequence == ChildCount())
                     {
                         m_sequence = 0;
                         return BHStatus.Success;
@@ -38,7 +38,7 @@ namespace Assets.BHTree
         {
             foreach (Behaviour behaviour in behaviours)
             {
-                Children.Add(behaviour);
+                m_children.Add(behaviour);
             }
         }
     }

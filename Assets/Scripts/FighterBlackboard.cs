@@ -6,12 +6,9 @@ using UnityEngine;
 
 namespace Assets.BHTree
 {
-    class FighterBlackboard : MonoBehaviour
+    public class FighterBlackboard : IBlackboard
     {
         private Munitions m_munitions = new Munitions();
-        private float m_tickInterval = 0.1f;
-        private float m_tickTimer = 0.0f;
-
         private void Initialize()
         {
             // sorry about this style :D::D
@@ -24,10 +21,10 @@ namespace Assets.BHTree
         }
 
         //fakeUpdate
-        private void Update() // how to use?????
+        public override void BlackboardTick(float deltaTime) // how to use?????
         {
 
-            m_tickInterval += Time.deltaTime;
+            m_tickInterval += deltaTime;
             if (m_tickTimer > m_tickInterval)
             {
                 m_munitions.Tick();

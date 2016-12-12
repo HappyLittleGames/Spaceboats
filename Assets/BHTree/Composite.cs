@@ -7,10 +7,11 @@ namespace Assets.BHTree
 {
     public abstract class Composite : Behaviour
     {
-        protected List<IBehaviour> Children { get; set; }
+        protected List<IBehaviour> m_children { get; set; }
+
         protected Composite()
         {
-            Children = new List<IBehaviour>();
+            m_children = new List<IBehaviour>();
             Initialize = () => { };
             Terminate = status => { };
             Update = () => BHStatus.Running;
@@ -18,12 +19,12 @@ namespace Assets.BHTree
 
         public IBehaviour GetChild(int index)
         {
-            return Children[index];
+            return m_children[index];
         }
 
-        public int ChildCount
+        public int ChildCount()
         {
-            get { return Children.Count; }
+            return m_children.Count;
         }
     }
 }
