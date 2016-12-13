@@ -7,7 +7,7 @@ namespace Assets.BHTree
 {
     public class Sequence : Composite
     {
-        private int m_sequence;
+        private int m_sequence = 0;
         public Sequence()
         {
             Update = () =>

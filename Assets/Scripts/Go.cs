@@ -11,7 +11,7 @@ public class Go : MonoBehaviour
     private GameObject m_star = null;
     private Rigidbody m_rigidBody = null;
     private Weapon m_weapon = null;
-
+ 
     [SerializeField]private GameObject m_destObject = null;
     [SerializeField]private bool m_debugLogs = false;
     [SerializeField]private bool m_debugRays = false;

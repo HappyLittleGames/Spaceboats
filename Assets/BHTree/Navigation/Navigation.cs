@@ -5,26 +5,19 @@ using System.Text;
 
 namespace Assets.BHTree
 {
-    class Munitions : Sequence
+    class Navigation : Sequence
     {
         private List<Weapon> m_weaponry = new List<Weapon>();
 
-        public Munitions()
+        public Navigation()
         {
             Initialize = () =>
             {
                 SetSequence(new List<IBehaviour>
                 {
-                    new MunitionsAim(),
-                    new MunitionsFire(),
-                    new MunitionsReload()
                 });
             };
         }
 
-        public void AddWeaponry(Weapon weapon)
-        {
-            m_weaponry.Add(weapon);
-        }
     }
 }
