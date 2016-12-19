@@ -7,14 +7,14 @@ namespace Assets.BHTree
 {
     public class Sequence : Composite
     {
-        private int m_sequence = 0;
+        protected int m_sequence = 0;
         public Sequence()
         {
-            Update = () =>
+            BUpdate = () =>
             {
                 for (;;)
                 {
-                    BHStatus status = GetChild(m_sequence).Tick();
+                    BHStatus status = GetChild(m_sequence).BTick();
                     if (status != BHStatus.Success)
                     {
                         if (status == BHStatus.Failure)
@@ -31,14 +31,14 @@ namespace Assets.BHTree
                 }
             };
 
-            Initialize = () => { m_sequence = 0; };  // less delegates maybe?
+            BInitialize = () => { m_sequence = 0; };
         }
 
         public void SetSequence(List<IBehaviour> behaviours)
         {
             foreach (Behaviour behaviour in behaviours)
             {
-                m_children.Add(behaviour);
+                Children.Add(behaviour);
             }
         }
     }

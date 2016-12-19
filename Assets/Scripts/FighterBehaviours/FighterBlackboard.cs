@@ -8,40 +8,34 @@ namespace Assets.BHTree
 {
     public class FighterBlackboard : Blackboard
     {
-        private Munitions m_munitions = new Munitions();
+        public Go goScript { get; set; } // not like this
+        public WeaponBehaviour weaponBehaviour { get; private set; }
+        public GameObject target { get; set; }
 
-        public FighterBlackboard()
+        public FighterBlackboard(Go go, GameObject parentObject)
         {
-            //Initialize();
-        }        
-
-        //private void Initialize()
-        //{
-            
-        //    // sorry about this style :D::D
-        //    m_munitions.SetSequence(new List<IBehaviour>
-        //    {
-        //        new MunitionsAim(),
-        //        new MunitionsFire(),
-        //        new MunitionsReload()
-        //    });
-        //}
+            this.goScript = go;
+            ParentObject = parentObject;
+        }
 
         public void AddWeapon(Weapon weapon)
         {
-            m_munitions.AddWeaponry(weapon);
+            weaponBehaviour = new WeaponBehaviour(this, weapon);
         }
 
         //fakeUpdate
-        public override void BlackboardTick(float deltaTime) // how to use?????
+        public override void BlackboardUpdate(float deltaTime)
         {
 
-            m_tickInterval += deltaTime;
-            if (m_tickTimer > m_tickInterval)
-            {
-                m_munitions.Tick();
-                m_tickTimer = 0.0f;
-            }
+            m_tickTimer += deltaTime;
+            //if (m_tickTimer > m_tickInterval)
+            //{
+                
+                weaponBehaviour.BTick();
+                m_tickTimer = 0.0f;  
+            //}
+
+            // m_munitions.Update();
         }
 
 

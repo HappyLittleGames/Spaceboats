@@ -7,7 +7,7 @@ public class Teams : MonoBehaviour
 {
     [SerializeField] private List<string> m_teamTags = null;
 
-    private Dictionary<string, List<GameObject>> m_teams = null;
+    [SerializeField] private Dictionary<string, List<GameObject>> m_teams = null;
 
     void Awake()
     {
@@ -20,8 +20,24 @@ public class Teams : MonoBehaviour
                 m_teams.Add(teamTag, GameObject.FindGameObjectsWithTag(teamTag).ToList());
             }
         }
+        else
+        {
+            Debug.Log("Teams:Awake has no teamTags to look for");
+        }
 
         Debug.Log("Teams: " + m_teams.Count());
+    }
+
+
+    public bool AddToTeam(GameObject teamObject) // do not call in update
+    {
+        if(m_teams.ContainsKey(teamObject.tag))
+        {
+            m_teams[teamObject.tag].Add(teamObject);
+            return true;
+        }
+        else
+            return false;
     }
 
 
@@ -43,11 +59,19 @@ public class Teams : MonoBehaviour
                 {
                     others.Add(entity);
                 }
+                foreach (GameObject testTarget in GameObject.FindGameObjectsWithTag("TargetPracticeTarget"))
+                {
+                    others.Add(testTarget);
+                }
             }
         }
         return others;
     }
 
+    public GameObject GetBase(string teamTag)
+    {
+        return GameObject.FindGameObjectWithTag(teamTag + "Base"); // should return vector of supply-positions really
+    }
 
     public void Kill(GameObject entity)
     {

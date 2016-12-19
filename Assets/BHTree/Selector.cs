@@ -10,11 +10,11 @@ namespace Assets.BHTree
         private int m_selection;
         public Selector()
         {
-            Update = () =>
+            BUpdate = () =>
             {
                 for (;;)
                 {
-                    BHStatus status = GetChild(m_selection).Tick();
+                    BHStatus status = GetChild(m_selection).BTick();
                     if (status != BHStatus.Failure)
                     {
                         if (status == BHStatus.Success)
@@ -29,7 +29,7 @@ namespace Assets.BHTree
                     }
                 }
             };
-            Initialize = () =>
+            BInitialize = () =>
             {
                 m_selection = 0;
             };

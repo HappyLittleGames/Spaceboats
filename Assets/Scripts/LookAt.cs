@@ -8,6 +8,9 @@ public class LookAt : MonoBehaviour
 
 	void Update()
     {
-        m_beholder.transform.LookAt(m_beholden.transform.position);	
-	}
+        if (m_beholder && m_beholden)
+            m_beholder.transform.LookAt(m_beholden.transform.position);	
+        else if (m_beholden)
+            gameObject.transform.LookAt(m_beholden.transform.position);
+    }
 }

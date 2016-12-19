@@ -7,6 +7,7 @@ namespace Assets.BHTree
 {
     public enum BHStatus
     {
+        Invalid,
         Success,
         Failure,
         Running

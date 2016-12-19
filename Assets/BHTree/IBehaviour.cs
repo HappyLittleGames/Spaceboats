@@ -7,11 +7,12 @@ namespace Assets.BHTree
 {
     public interface IBehaviour
     {
-        BHStatus Tick();
-        BHStatus Status { get; }
+        BHStatus BTick();
 
-        Action Initialize { set; }
-        Func<BHStatus> Update { set; }
-        Action<BHStatus> Terminate { set; }
+        BHStatus BStatus { get; }
+        IBehaviour BParent { get; set; }
+        Action BInitialize { set; }
+        Func<BHStatus> BUpdate { set; }
+        Action<BHStatus> BTerminate { set; }
     }
 }

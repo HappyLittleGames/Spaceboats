@@ -11,7 +11,7 @@ namespace Assets.BHTree
 
         public Navigation()
         {
-            Initialize = () =>
+            BInitialize = () =>
             {
                 SetSequence(new List<IBehaviour>
                 {
