@@ -74,10 +74,10 @@ public class Go : MonoBehaviour
 
     void FixedUpdate()
     {
-        FindClosestWingman();
-        StayInFormation();
-        if ((m_destObject) && (m_destObject.tag != "TargetPracticeTarget"))
-            //Navigate();
+        //FindClosestWingman();
+        //StayInFormation();
+        //if ((m_destObject) && (m_destObject.tag != "TargetPracticeTarget"))
+        //    //Navigate();
         ManualSteering();
     }
 
@@ -105,7 +105,10 @@ public class Go : MonoBehaviour
         m_blackboard = new FighterBlackboard(this, gameObject);
 
         foreach (Weapon weapon in m_weapons)
+        {
             m_blackboard.AddWeapon(weapon);
+        }
+        m_blackboard.AddNavigation(new Propulsion(m_rigidBody, gameObject.transform));
     }
 
 
@@ -324,11 +327,15 @@ public class Go : MonoBehaviour
         }
         if (Input.GetAxis("Roll") != 0)
         {
-            m_propulsion.Turn("roll", -1.0f);
+            m_propulsion.Turn("roll", Input.GetAxis("Roll"));
         }
         if (Input.GetButton("Jump"))
         {
             m_propulsion.ApplyThrottle(1, Time.fixedDeltaTime);
+        }
+        if (Input.GetButton("Fire1"))
+        {
+            m_propulsion.ApplyGravBreak(1, Time.fixedDeltaTime);
         }
     }
 

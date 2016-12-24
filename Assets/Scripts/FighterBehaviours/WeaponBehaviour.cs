@@ -59,12 +59,12 @@ namespace Assets.BHTree
             GameObject hit = m_weapon.DebugPew(m_blackboard.ParentObject.transform.position, m_blackboard.ParentObject.transform.forward, 0.1f);
             if (hit != null)
             {
-                hit.BroadcastMessage("KillMe");
+                //hit.BroadcastMessage("KillMe");
 
             }
             else if ((hit != null) && (hit.tag == "TargetPracticeTarget"))
             {
-                GameObject.Destroy(hit);
+                // GameObject.Destroy(hit);
             }
             return BHStatus.Success;
         }
