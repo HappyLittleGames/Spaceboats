@@ -7,20 +7,22 @@ using UnityEngine;
 
 public class Propulsion
 {
-    private Rigidbody m_rigidbody = null;
-    private Transform m_centreOfMass = null;
+    private bool m_debugLogs = false;
+    public float turnRate { get; set; }
+    public float thrust { get; set; }
+    public float vectoringThrust { get; set; }
 
-    public Propulsion(Rigidbody rigidBody, Transform rootTransform)
+    public Rigidbody rigidbody { get; private set; }
+    private GameObject m_rootObject = null;
+
+    public Propulsion(Rigidbody rigidBody, GameObject rootObject, float thrust, float turnRate)
     {
-        m_rigidbody = rigidBody;
-        m_centreOfMass = rootTransform;
+        rigidbody = rigidBody;
+        m_rootObject = rootObject;
+        this.thrust = thrust;
+        this.turnRate = turnRate;
+        vectoringThrust = 1;
     }
-
-    [SerializeField] private bool m_debugLogs = false;
-    [SerializeField] private bool m_debugRays = false;
-    [SerializeField] private float m_turnRate = 4;
-    [SerializeField] private float m_thrust = 10;
-    [SerializeField] private float m_vectoringThrust = 1;
 
 
     /// <summary>
@@ -36,9 +38,10 @@ public class Propulsion
         {
             if (m_debugLogs)
             {
-                Debug.Log("current velocity = " + m_rigidbody.velocity.magnitude);
+                Debug.Log("current velocity = " + rigidbody.velocity.magnitude);
             }
-            m_rigidbody.AddForce((m_centreOfMass.forward * m_thrust * throttle) * fixedDeltaTime, ForceMode.Impulse);
+            float amount = Mathf.Clamp(throttle, -1f, 1f);
+            rigidbody.AddForce((m_rootObject.transform.forward * thrust * throttle) * fixedDeltaTime, ForceMode.Impulse);
         }
     }
 
@@ -54,18 +57,15 @@ public class Propulsion
     /// </param>
     public void ApplyGravBreak(float throttle, float fixedDeltaTime)
     {
-        if (m_debugLogs)
-            Debug.Log("Breaking!");
-
         float amount = 1 - Mathf.Clamp(throttle, 0f, 1f);
-        Vector3 reverseThrust = -m_rigidbody.velocity.normalized;
-        m_rigidbody.AddForce((reverseThrust * m_thrust * amount) * fixedDeltaTime, ForceMode.Impulse);
-        Debug.DrawRay(m_centreOfMass.position, m_rigidbody.velocity * (m_thrust * -amount * fixedDeltaTime));
+        Vector3 reverseThrust = -rigidbody.velocity.normalized;
+        rigidbody.AddForce((reverseThrust * thrust * amount) * fixedDeltaTime, ForceMode.Impulse);
+        Debug.DrawRay(m_rootObject.transform.position, rigidbody.velocity * (thrust * -amount * fixedDeltaTime));
     }
 
 
     /// <summary>
-    ///  Applies vectoring thrust in any direction, determined by thust in propulsion.
+    ///  Applies vectoring thrust in any direction, determined by strength of thrust in propulsion and it's throttle.
     /// </summary>
     ///     /// <param name="direction">
     /// Direction vector to apply thrust.
@@ -78,12 +78,13 @@ public class Propulsion
     /// </param>
     public void VectoringThrust(Vector3 direction, float throttle, float fixedDeltaTime)
     {
-        m_rigidbody.AddForce((direction.normalized * (m_vectoringThrust * throttle)) * fixedDeltaTime, ForceMode.Impulse); // impulse mode
+        float amount = 1 - Mathf.Clamp(throttle, 0f, 1f);
+        rigidbody.AddForce((direction.normalized * (vectoringThrust * amount)) * fixedDeltaTime, ForceMode.Impulse); // impulse mode
     }
 
 
     /// <summary>
-    ///  Applies some torque vessel, per axis
+    ///  Applies some torque, per axis
     /// </summary>
     ///     /// <param name="direction">
     /// Direction vector to apply thrust.
@@ -91,35 +92,46 @@ public class Propulsion
     /// <param name="input">
     /// "pitch", "yaw", or "roll" along the transform axis.
     /// </param>
-    /// <param name="amount">
-    /// Desired throttle, clamped from -1 to 1 (left to right).
+    /// <param name="throttle">
+    /// Desired throttle, clamped from 0 to 1 (left to right).
     /// </param>
-    public void Turn(string input, float amount)
+    public void Rotate(string input, Vector3 rotation)
     {
-        switch (input)
+        //Rigidbody.AddRelativeTorque(rotation.normalized * m_turnRate * amount, ForceMode.Force);
+
+        if (rotation != Vector3.zero)
         {
-            case "pitch":
-                m_rigidbody.AddTorque((m_centreOfMass.right * m_turnRate) * amount, ForceMode.Acceleration);
-                break;
-            case "yaw":
-                m_rigidbody.AddTorque((m_centreOfMass.up * m_turnRate) * amount, ForceMode.Acceleration);
-                break;
-            case "roll":
-                m_rigidbody.AddTorque((m_centreOfMass.forward * m_turnRate) * amount, ForceMode.Acceleration);
-                break;
-            default:
-                Debug.Log(this + ", TurnToBearing took invalid string");
-                break;
+            switch (input)
+            {
+                case "pitch":
+                    rigidbody.AddTorque((m_rootObject.transform.right * turnRate) * rotation.x, ForceMode.Force);
+                    break;
+                case "yaw":
+                    rigidbody.AddTorque((m_rootObject.transform.up * turnRate) * rotation.y, ForceMode.Force);
+                    break;
+                case "roll":
+                    rigidbody.AddTorque((m_rootObject.transform.forward * turnRate) * rotation.z, ForceMode.Force);
+                    break;
+                default:
+                    Debug.Log(this + ", Rotate took invalid string");
+                    break;
+            }
         }
     }
-    //private void SetBearing(Vector3 desiredDestination)
-    //{
-    //    Quaternion bearing = new Quaternion(m_centreOfMass.rotation.x, m_centreOfMass.rotation.y, m_centreOfMass.rotation.z, m_centreOfMass.rotation.w);
-    //    m_bearing.transform.LookAt(desiredDestination, gameObject.transform.position - ((m_star) ? m_star.transform.position : gameObject.transform.up));
-    //    if (m_debugRays)
-    //    {
-    //        Debug.DrawRay(m_bearing.transform.position, m_bearing.transform.forward * 10);
-    //    }
-    //}
+
+
+    /// <summary>
+    ///  Applies some torque, per axis
+    /// </summary>
+    /// <param name="destination">
+    /// The point to turn towards.
+    /// </param>
+    public void FakeRotate(Vector3 destination, float deltaTime)
+    {
+        Quaternion direction = Quaternion.LookRotation(destination);
+        direction = Quaternion.Slerp(rigidbody.rotation, direction, turnRate * deltaTime);
+        rigidbody.angularVelocity = Vector3.zero;
+        rigidbody.MoveRotation(direction);
+    }
 }
 

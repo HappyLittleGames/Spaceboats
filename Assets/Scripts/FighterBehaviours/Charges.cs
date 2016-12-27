@@ -41,7 +41,7 @@ namespace Assets.BHTree
             return m_charges <= 0;
         }
 
-        public BHStatus NeedsRecharge(/* int amount */)
+        public BHStatus NeedsRecharge()
         {
             if (m_charges == m_capacity)
             {
@@ -49,10 +49,10 @@ namespace Assets.BHTree
             }
             else
             {
-                m_blackboard.goScript.SetDestObject(m_spaceManager.GetTeams().GetBase(m_blackboard.goScript.gameObject.tag));
+                // m_blackboard.fighter.SetDestObject(m_spaceManager.GetTeams().GetBase(m_blackboard.fighter.gameObject.tag));
                 return BHStatus.Failure;
 
-                // if close to reload thhing dock up and get ammo?
+                // if close to reload thing dock up and get ammo?
             }
         }
     }

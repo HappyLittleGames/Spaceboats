@@ -23,16 +23,15 @@ namespace Assets.BHTree
 
 
         private BHStatus TakingAim()
-        {
-            // GameObject practiceTarget = GameObject.FindGameObjectWithTag("TargetPracticeTarget");
+        {          
             if (m_blackboard.target)
             {                
-                if ((m_blackboard.target.transform.position - m_blackboard.ParentObject.transform.position).magnitude <= m_weapon.range)
+                if ((m_blackboard.target.transform.position - m_blackboard.parentObject.transform.position).magnitude <= m_weapon.range)
                 {
-                    Debug.Log("Taking Aim, AnyKey to fire");
-                    if (Vector3.Angle(m_blackboard.target.transform.position - m_blackboard.ParentObject.transform.position, m_blackboard.ParentObject.transform.forward) < m_weapon.accuracy)
+                    // Debug.Log("Taking Aim (AnyKey to fire)");
+                    if (Vector3.Angle(m_blackboard.target.transform.position - m_blackboard.parentObject.transform.position, m_blackboard.parentObject.transform.forward) < m_weapon.accuracy)
                     {
-                            Debug.Log("Target locked, Weapons Free");
+                            // Debug.Log("Target locked, Weapons Free");
                             return BHStatus.Success;
                     }
                     else if (Input.anyKeyDown)
@@ -43,7 +42,7 @@ namespace Assets.BHTree
                 }
                 else
                 {
-                    Debug.Log("Target not in Range");
+                    // Debug.Log("Target not in Range");
                     return BHStatus.Running;
                 }                
             }
@@ -54,17 +53,11 @@ namespace Assets.BHTree
 
         private BHStatus OpeningFire()
         {
-            // make this call some destroy or take damage in collider (maybe SendMessage?)
-            Debug.Log("Opening Fire");
-            GameObject hit = m_weapon.DebugPew(m_blackboard.ParentObject.transform.position, m_blackboard.ParentObject.transform.forward, 0.1f);
+            // Debug.Log("Opening Fire");
+            GameObject hit = m_weapon.DebugPew(m_blackboard.parentObject.transform.position, m_blackboard.parentObject.transform.forward, 0.1f);
             if (hit != null)
             {
-                //hit.BroadcastMessage("KillMe");
-
-            }
-            else if ((hit != null) && (hit.tag == "TargetPracticeTarget"))
-            {
-                // GameObject.Destroy(hit);
+                GameObject.Destroy(hit);
             }
             return BHStatus.Success;
         }
@@ -72,7 +65,7 @@ namespace Assets.BHTree
 
         private BHStatus Reloading()
         {
-            Debug.Log("Attempting to recharge");
+            // Debug.Log("Attempting to recharge");
             return BHStatus.Success;
         }
     }

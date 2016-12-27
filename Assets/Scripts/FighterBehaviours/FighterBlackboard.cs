@@ -8,17 +8,28 @@ namespace Assets.BHTree
 {
     public class FighterBlackboard : Blackboard
     {
-        public Go goScript { get; set; } // not like this
+        public Fighter fighter { get; set; } // not like this
+        public ScanningBehaviour scanningBehaviour { get; private set; }
         public WeaponBehaviour weaponBehaviour { get; private set; }
         public NavigationBehaviour navigationBehaviour { get; private set; }
+        public Selector navigationSelector { get; set; }
+        public Navigator navigator { get; set; }
         public GameObject target { get; set; }
+        public GameObject mothership { get; set; }
+        public List<GameObject> enemies { get; set; }
 
-        public FighterBlackboard(Go go, GameObject parentObject)
+        public FighterBlackboard(Fighter fighter, GameObject parentObject)
         {
-            this.goScript = go;
-            ParentObject = parentObject;
+            this.fighter = fighter;
+            base.parentObject = parentObject;
             m_tickTimer = 0.0f;
             m_tickInterval = .1f;
+            enemies = new List<GameObject>();
+        }
+
+        public void AddScanner()
+        {
+            scanningBehaviour = new ScanningBehaviour(this);
         }
 
         public void AddWeapon(Weapon weapon)
@@ -28,23 +39,22 @@ namespace Assets.BHTree
 
         public void AddNavigation(Propulsion prop)
         {
-            navigationBehaviour = new NavigationBehaviour(this, prop);
-        }
+            navigator = new Navigator(prop);
+            navigationBehaviour = new NavigationBehaviour(this, navigator, prop);
+            
+        }        
 
         //fakeUpdate
         public override void BlackboardUpdate(float deltaTime)
         {
-
             m_tickTimer += deltaTime;
             if (m_tickTimer > m_tickInterval)
             {
+                scanningBehaviour.BTick();
                 weaponBehaviour.BTick();
                 navigationBehaviour.BTick();
                 m_tickTimer = 0.0f;
-            }
-
+            }            
         }
-
-
     }
 }

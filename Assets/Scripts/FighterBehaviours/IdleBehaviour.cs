@@ -1,53 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections;
 
 namespace Assets.BHTree
 {
-    public class NavigationBehaviour : Sequence
+    public class IdleBehaviour : Sequence
     {
         private FighterBlackboard m_blackboard = null;
         private Propulsion m_propulsion = null;
         private Navigator m_navigator = null;
         private Vector3 m_destination = Vector3.zero;
-        private GameObject m_target = null;
-        public NavigationBehaviour(FighterBlackboard blackboard, Navigator navigator, Propulsion prop)
+        private float m_orbitDistance = 40;
+        public IdleBehaviour(FighterBlackboard blackboard, Navigator navigator, Propulsion prop)
         {
             m_blackboard = blackboard;
             m_propulsion = prop;
             m_navigator = navigator;
-
-            AddBehaviour<Condition>().BCanRun = FindTarget;
-            AddBehaviour<Behaviour>().BUpdate = Stabilize;            
+            
+            AddBehaviour<Condition>().BCanRun = HasMothership;
+            AddBehaviour<Behaviour>().BUpdate = FindOrbit;
+            AddBehaviour<Behaviour>().BUpdate = Stabilize;
             AddBehaviour<Behaviour>().BUpdate = TurnToDestination;
             AddBehaviour<Behaviour>().BUpdate = SetThrottle;
         }
 
 
-        private bool FindTarget()
-        {
-            m_target = null;
-            if (GameObject.FindGameObjectWithTag("TargetPracticeTarget"))
-            {
-                m_target = GameObject.FindGameObjectWithTag("TargetPracticeTarget");
-            }
-            else if ((GameObject.FindGameObjectWithTag("Team1")) && (m_blackboard.parentObject.tag != "Team1"))
-            {
-                m_target = GameObject.FindGameObjectWithTag("Team1");    
-            }
-            else if ((GameObject.FindGameObjectWithTag("Team2")) && (m_blackboard.parentObject.tag != "Team2"))
-            {
-                m_target = GameObject.FindGameObjectWithTag("Team2");
-            }
-            if (m_target != null)
-            {
-                m_destination = m_target.transform.position - m_blackboard.parentObject.transform.position - m_propulsion.rigidbody.velocity;
+        private bool HasMothership()
+        {            
+            if (m_blackboard.mothership != null)
+            {               
                 return true;
             }
             else
-                return false;            
+                return false;
+        }
+
+
+        private BHStatus FindOrbit()
+        {
+            m_destination = m_blackboard.mothership.transform.position + (m_blackboard.parentObject.transform.right.normalized * m_orbitDistance);
+            return BHStatus.Failure;
         }
 
 
@@ -58,6 +49,7 @@ namespace Assets.BHTree
                 Vector3.Distance(m_blackboard.parentObject.transform.position, m_destination))
             {
                 // Debug.Log("Reducing Speed");
+                // this arbitrary "30" needs implementation, is currently thrust*.75 or whatever but meh.
                 m_destination = (-m_propulsion.rigidbody.velocity.normalized * 30) - m_blackboard.parentObject.transform.position;
             }
             return BHStatus.Success;
@@ -66,14 +58,12 @@ namespace Assets.BHTree
 
         private BHStatus TurnToDestination()
         {
-            if (m_target != null)
+            if (m_blackboard.mothership != null)
             {
-                // Vector3 targetVelocity = (testTarget.GetComponent<Rigidbody>().velocity);
-                
                 m_navigator.destination = m_destination;
                 return BHStatus.Success;
             }
-            else 
+            else
             {
                 return BHStatus.Failure;
             }
@@ -84,7 +74,8 @@ namespace Assets.BHTree
         {
             if (Vector3.Angle(m_blackboard.parentObject.transform.forward, m_navigator.destination) < 15)
             {
-                m_navigator.thrustThrottle = 1;
+                // needs some clever behaviour for throttling
+                m_navigator.thrustThrottle = 1; 
                 return BHStatus.Success;
             }
             else
@@ -92,6 +83,5 @@ namespace Assets.BHTree
                 return BHStatus.Failure;
             }
         }
-    }    
+    }
 }
-
