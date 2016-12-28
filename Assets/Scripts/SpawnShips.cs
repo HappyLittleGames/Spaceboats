@@ -8,7 +8,7 @@ namespace Assets.Scripts
 {
     class SpawnShips : MonoBehaviour
     {
-        [SerializeField] private GameObject shipType = null;
+        [SerializeField] private GameObject shipType = null;        
         [SerializeField] private float thrust = 10;
         [SerializeField] private float turnRate = 4;
 

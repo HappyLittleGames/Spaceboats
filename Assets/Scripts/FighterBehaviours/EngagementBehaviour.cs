@@ -6,14 +6,14 @@ using UnityEngine;
 
 namespace Assets.BHTree
 {
-    public class NavigationBehaviour : Sequence
+    public class EngagementBehaviour : Sequence
     {
         private FighterBlackboard m_blackboard = null;
         private Propulsion m_propulsion = null;
         private Navigator m_navigator = null;
         private Vector3 m_destination = Vector3.zero;
         private GameObject m_target = null;
-        public NavigationBehaviour(FighterBlackboard blackboard, Navigator navigator, Propulsion prop)
+        public EngagementBehaviour(FighterBlackboard blackboard, Navigator navigator, Propulsion prop)
         {
             m_blackboard = blackboard;
             m_propulsion = prop;
@@ -29,17 +29,9 @@ namespace Assets.BHTree
         private bool FindTarget()
         {
             m_target = null;
-            if (GameObject.FindGameObjectWithTag("TargetPracticeTarget"))
+            if (m_blackboard.target != null)
             {
-                m_target = GameObject.FindGameObjectWithTag("TargetPracticeTarget");
-            }
-            else if ((GameObject.FindGameObjectWithTag("Team1")) && (m_blackboard.parentObject.tag != "Team1"))
-            {
-                m_target = GameObject.FindGameObjectWithTag("Team1");    
-            }
-            else if ((GameObject.FindGameObjectWithTag("Team2")) && (m_blackboard.parentObject.tag != "Team2"))
-            {
-                m_target = GameObject.FindGameObjectWithTag("Team2");
+                m_target = m_blackboard.target;
             }
             if (m_target != null)
             {
@@ -47,7 +39,7 @@ namespace Assets.BHTree
                 return true;
             }
             else
-                return false;            
+                return false;
         }
 
 

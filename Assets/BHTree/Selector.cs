@@ -20,6 +20,7 @@ namespace Assets.BHTree
                         if (status == BHStatus.Success)
                         {
                             m_selection = 0;
+                            return BHStatus.Success;
                         }
                     }
                     if (++m_selection == ChildCount())
@@ -29,10 +30,7 @@ namespace Assets.BHTree
                     }
                 }
             };
-            BInitialize = () =>
-            {
-                m_selection = 0;
-            };
+            BInitialize = () =>  { m_selection = 0; };
         }
     }
 }

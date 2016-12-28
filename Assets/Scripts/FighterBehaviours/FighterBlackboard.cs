@@ -11,7 +11,9 @@ namespace Assets.BHTree
         public Fighter fighter { get; set; } // not like this
         public ScanningBehaviour scanningBehaviour { get; private set; }
         public WeaponBehaviour weaponBehaviour { get; private set; }
-        public NavigationBehaviour navigationBehaviour { get; private set; }
+        public EngagementBehaviour engagementBehaviour { get; private set; }
+        //public IdleBehaviour idleBehaviour { get; private set; }
+        public NavigationTree navigationTree { get; private set; }
         public Selector navigationSelector { get; set; }
         public Navigator navigator { get; set; }
         public GameObject target { get; set; }
@@ -21,10 +23,13 @@ namespace Assets.BHTree
         public FighterBlackboard(Fighter fighter, GameObject parentObject)
         {
             this.fighter = fighter;
-            base.parentObject = parentObject;
+            this.parentObject = parentObject;
+            mothership = fighter.mothership;
             m_tickTimer = 0.0f;
             m_tickInterval = .1f;
+            m_tickInterval = UnityEngine.Random.Range(-m_tickInterval * .1f, m_tickInterval * .1f) + m_tickInterval;
             enemies = new List<GameObject>();
+            
         }
 
         public void AddScanner()
@@ -39,9 +44,12 @@ namespace Assets.BHTree
 
         public void AddNavigation(Propulsion prop)
         {
+            //navigationSelector = new Selector();
             navigator = new Navigator(prop);
-            navigationBehaviour = new NavigationBehaviour(this, navigator, prop);
-            
+            engagementBehaviour = new EngagementBehaviour(this, navigator, prop);
+            //idleBehaviour = new IdleBehaviour(this, navigator, prop);
+            navigationTree = new NavigationTree(this, navigator, prop);
+
         }        
 
         //fakeUpdate
@@ -52,7 +60,8 @@ namespace Assets.BHTree
             {
                 scanningBehaviour.BTick();
                 weaponBehaviour.BTick();
-                navigationBehaviour.BTick();
+                // engagementBehaviour.BTick();
+                navigationTree.BTick();
                 m_tickTimer = 0.0f;
             }            
         }
