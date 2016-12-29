@@ -10,34 +10,32 @@ namespace Assets.BHTree
     {
         private FighterBlackboard m_blackboard = null;
         private Propulsion m_propulsion = null;
-        private Navigator m_navigator = null;
-        private Vector3 m_destination = Vector3.zero;
+        private Vector3 m_desiredPosition = Vector3.zero;
         private GameObject m_target = null;
-        private float m_orbitDistance = 40;
+        private float m_orbitDistance = 4;
         public NavigationTree(FighterBlackboard blackboard, Navigator navigator, Propulsion prop)
         {
             m_blackboard = blackboard;
-            m_propulsion = prop;
-            m_navigator = navigator;                       
+            m_propulsion = prop;                  
 
             Selector navigationSelector = this.AddBehaviour<Selector>();
+            {
+                Sequence engage = navigationSelector.AddBehaviour<Sequence>();
+                engage.AddBehaviour<Condition>().BCanRun = HasTarget;   
+                engage.AddBehaviour<Behaviour>().BUpdate = SetTarget;
 
-            Sequence engage = navigationSelector.AddBehaviour<Sequence>();
-            engage.AddBehaviour<Condition>().BCanRun = HasTarget;
-            //engage.AddBehaviour<Behaviour>().BUpdate = Stabilize;
-            //engage.AddBehaviour<Behaviour>().BUpdate = SetDestination;
-            //engage.AddBehaviour<Behaviour>().BUpdate = SetThrottle;
+                Sequence idle = navigationSelector.AddBehaviour<Sequence>();
+                idle.AddBehaviour<Condition>().BCanRun = HasMothership;
+                idle.AddBehaviour<Behaviour>().BUpdate = SetOrbit;
+            }
 
-            Sequence idle = navigationSelector.AddBehaviour<Sequence>();
-            idle.AddBehaviour<Condition>().BCanRun = HasMothership;
-            idle.AddBehaviour<Behaviour>().BUpdate = FindOrbit;
-            //idle.AddBehaviour<Behaviour>().BUpdate = Stabilize;
-            //idle.AddBehaviour<Behaviour>().BUpdate = SetDestination;
-            //idle.AddBehaviour<Behaviour>().BUpdate = SetThrottle;
+            Sequence propulsion = AddBehaviour<Sequence>();
+            {
+                propulsion.AddBehaviour<Behaviour>().BUpdate = Stabilize;
+                propulsion.AddBehaviour<Behaviour>().BUpdate = SetDestination;
+                propulsion.AddBehaviour<Behaviour>().BUpdate = SetThrottle;
+            }
 
-            AddBehaviour<Behaviour>().BUpdate = Stabilize;
-            AddBehaviour<Behaviour>().BUpdate = SetDestination;
-            AddBehaviour<Behaviour>().BUpdate = SetThrottle;
             AddBehaviour<Behaviour>().BUpdate = AlwaysFails;
         }
 
@@ -51,7 +49,7 @@ namespace Assets.BHTree
             }
             if (m_target.transform != null)
             {
-                m_destination = (m_target.transform.position + m_blackboard.parentObject.transform.right.normalized * m_orbitDistance) - m_propulsion.rigidbody.velocity;
+                m_desiredPosition = (m_target.transform.position + m_blackboard.parentObject.transform.right.normalized * m_orbitDistance) - m_propulsion.rigidbody.velocity;
                 return true;
             }
             else
@@ -59,11 +57,11 @@ namespace Assets.BHTree
         }
 
 
-        private BHStatus FindOrbit()
+        private BHStatus SetOrbit()
         {
             // not correct
             
-            m_destination = m_target.transform.position - m_propulsion.rigidbody.velocity;
+            m_desiredPosition = m_target.transform.position - m_propulsion.rigidbody.velocity;
             return BHStatus.Success;
         }
 
@@ -71,12 +69,12 @@ namespace Assets.BHTree
         private BHStatus Stabilize()
         {
             // Debug.Log("magnitude of velocity = " + m_propulsion.rigidbody.velocity.magnitude);
-            if (Vector3.Distance(m_blackboard.parentObject.transform.position + m_propulsion.rigidbody.velocity.normalized, m_destination) >
-                Vector3.Distance(m_blackboard.parentObject.transform.position, m_destination))
+            if (Vector3.Distance(m_blackboard.parentObject.transform.position + m_propulsion.rigidbody.velocity.normalized, m_desiredPosition) >
+                Vector3.Distance(m_blackboard.parentObject.transform.position, m_desiredPosition))
             {
                 // Debug.Log("Reducing Speed");
                 // this arbitrary "30" needs implementation, is currently thrust*.75 or whatever but meh.
-                m_destination = (-m_propulsion.rigidbody.velocity.normalized * 30) - m_blackboard.parentObject.transform.position;
+                m_desiredPosition = (-m_propulsion.rigidbody.velocity.normalized * 30) - m_blackboard.parentObject.transform.position;
             }
             return BHStatus.Success;
         }
@@ -91,7 +89,7 @@ namespace Assets.BHTree
             }
             if (m_target != null)
             {
-                m_destination = m_target.transform.position - m_blackboard.parentObject.transform.position - m_propulsion.rigidbody.velocity;
+                m_desiredPosition = m_target.transform.position - m_blackboard.parentObject.transform.position - m_propulsion.rigidbody.velocity;
                 return true;
             }
             else
@@ -99,19 +97,37 @@ namespace Assets.BHTree
         }
 
 
+
+        private BHStatus SetTarget()
+        {
+            m_target = null;
+            if (m_blackboard.target != null)
+            {
+                m_target = m_blackboard.target;
+            }
+            if (m_target != null)
+            {
+                m_desiredPosition = m_target.transform.position - m_blackboard.parentObject.transform.position - m_propulsion.rigidbody.velocity;
+                return BHStatus.Success;
+            }
+            else
+                return BHStatus.Failure;
+        }
+
+
         private BHStatus SetDestination()
         {               
-            m_navigator.destination = m_destination;
+            m_blackboard.navigator.destination = m_desiredPosition;
             return BHStatus.Success;
         }
 
 
         private BHStatus SetThrottle()
         {
-            if (Vector3.Angle(m_blackboard.parentObject.transform.forward, m_navigator.destination) < 15)
+            if (Vector3.Angle(m_blackboard.parentObject.transform.forward, m_blackboard.navigator.destination) < 15)
             {
                 // needs some clever behaviour for throttling
-                m_navigator.thrustThrottle = 1;                
+                m_blackboard.navigator.thrustThrottle = 1;                
             }
             return BHStatus.Success;
         }

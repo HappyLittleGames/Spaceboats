@@ -48,7 +48,7 @@ public class Fighter : MonoBehaviour
 
     void Update()
     {
-        m_blackboard.BlackboardUpdate(Time.deltaTime);
+        m_blackboard.BlackboardUpdate();
         if (weaponVisuals)
         {
             float shrinkRate = 2f * Time.deltaTime;

@@ -15,7 +15,11 @@ namespace Assets.Scripts
 
         public void Update()
         {
-            if (Input.GetButtonDown("Fire2"))
+            if (Input.GetKeyDown(KeyCode.F1))
+            {
+                SpawnShip();
+            }
+            if (Input.GetKey(KeyCode.F2))
             {
                 SpawnShip();
             }
