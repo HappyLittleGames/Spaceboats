@@ -7,7 +7,8 @@ using UnityEngine;
 
 public class Propulsion
 {
-    private bool m_debugLogs = false;
+    private bool m_debugLogs = false;    
+
     public float turnRate { get; set; }
     public float thrust { get; set; }
     public float vectoringThrust { get; set; }
@@ -21,7 +22,8 @@ public class Propulsion
         m_rootObject = rootObject;
         this.thrust = thrust;
         this.turnRate = turnRate;
-        vectoringThrust = 1;
+        vectoringThrust = 1;       
+        
     }
 
 
@@ -41,7 +43,7 @@ public class Propulsion
                 Debug.Log("current velocity = " + rigidbody.velocity.magnitude);
             }
             float amount = Mathf.Clamp(throttle, -1f, 1f);
-            rigidbody.AddForce((m_rootObject.transform.forward * thrust * throttle) * fixedDeltaTime, ForceMode.Impulse);
+            rigidbody.AddForce((m_rootObject.transform.forward * thrust * amount) * fixedDeltaTime, ForceMode.Impulse);
         }
     }
 
@@ -121,7 +123,7 @@ public class Propulsion
 
 
     /// <summary>
-    ///  Applies some torque, per axis
+    ///  Poorly implemented Slerping towards a direction.
     /// </summary>
     /// <param name="destination">
     /// The point to turn towards.

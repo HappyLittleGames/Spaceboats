@@ -10,12 +10,10 @@ namespace Assets.BHTree
     {
         private int m_charges;
         private int m_capacity;
-        private SpaceManager m_spaceManager;
         private FighterBlackboard m_blackboard;
 
-        public Charges(SpaceManager spaceManager, FighterBlackboard blackboard, int amount, int capacity)
+        public Charges(FighterBlackboard blackboard, int amount, int capacity)
         {
-            m_spaceManager = spaceManager;
             m_blackboard = blackboard;
             m_charges = amount;
             m_capacity = capacity;

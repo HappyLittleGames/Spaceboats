@@ -8,7 +8,5 @@ namespace Assets
     class Fuel : BHTree.Sequence
     {
         private float m_fuel;
-        private SpaceManager spaceManager;
-
     }
 }

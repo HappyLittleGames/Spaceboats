@@ -3,19 +3,15 @@ using System.Collections;
 
 public class Weapon
 {
-    private Color m_color;
-    private bool m_coolingDown = false;
-    public float cooldown { get; private set; }
+    private Color m_color;    
     public float range { get; private set; }
     public float accuracy { get; private set; }
     private GameObject m_weaponVisuals = null; 
 
     public Weapon(Color lazerColor, float range, float accuracy, GameObject weaponVisuals)
     {
-        if (lazerColor != null)
-            m_color = lazerColor;
-        else
-            m_color = Color.green;
+
+        m_color = lazerColor;
 
         this.range = range;
         this.accuracy = accuracy;

@@ -23,7 +23,7 @@ namespace Assets.BHTree
                             return BHStatus.Success;
                         }
                     }
-                    if (++m_selection == ChildCount())
+                    if (++m_selection >= ChildCount())
                     {
                         m_selection = 0;
                         return BHStatus.Failure;

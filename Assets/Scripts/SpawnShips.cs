@@ -8,9 +8,13 @@ namespace Assets.Scripts
 {
     class SpawnShips : MonoBehaviour
     {
-        [SerializeField] private GameObject shipType = null;        
-        [SerializeField] private float thrust = 10;
-        [SerializeField] private float turnRate = 4;
+        [SerializeField] private GameObject m_shipType = null;
+        [SerializeField] private int m_teamNumber = 0;
+        [SerializeField] private float m_thrust = 10;
+        [SerializeField] private float m_turnRate = 4;
+        
+
+
 
 
         public void Update()
@@ -27,21 +31,22 @@ namespace Assets.Scripts
 
         public void SpawnShip()
         {
-            GameObject ship = (GameObject)Instantiate(shipType, transform.position, Quaternion.identity);
+            GameObject ship = (GameObject)Instantiate(m_shipType, transform.position, Quaternion.identity);
             Fighter fighter = ship.AddComponent<Fighter>();
-            fighter.SetThrust(thrust);
-            fighter.SetTurnRate(turnRate);
+            fighter.SetThrust(m_thrust);
+            fighter.SetTurnRate(m_turnRate);
             fighter.mothership = gameObject;
+            fighter.teamNumber = m_teamNumber;
         }
 
         public void AlterTurnRate(float change)
         {
-            turnRate += change;
+            m_turnRate += change;
         }
 
         public void AlterThrust(float change)
         {
-            thrust += change;
+            m_thrust += change;
         }
     }
 }

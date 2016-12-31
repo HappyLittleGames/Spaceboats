@@ -6,16 +6,16 @@ using UnityEngine;
 namespace Assets.BHTree
 {
     public class Navigator
-    {        
+    {
         private Propulsion m_propulsion;
         private Vector3 m_yoke = Vector3.zero;
         public float thrustThrottle { private get; set; }
-        public Vector3 destination { get; set; }
+        public Vector3 destination { get; set; }        
 
         public Navigator(Propulsion prop)
         {
             m_propulsion = prop;
-            destination = prop.rigidbody.position;
+            destination = prop.rigidbody.position;           
         }
 
 
@@ -25,6 +25,15 @@ namespace Assets.BHTree
             //m_propulsion.Rotate("yaw", m_yoke);
             m_propulsion.FakeRotate(destination, fixedDeltaTime);
             m_propulsion.ApplyThrottle(thrustThrottle, fixedDeltaTime);
+
+            //if (m_gravity != Vector3.zero)
+            //{
+            //    float gravityAtPlanet = 65000000;
+            //    float gravityOverDistance = gravityAtPlanet / Vector3.SqrMagnitude(m_planet.transform.position - m_propulsion.rigidbody.position);
+            //    m_gravity = (m_planet.transform.position - m_propulsion.rigidbody.position).normalized * gravityOverDistance;
+
+            //    m_propulsion.rigidbody.AddForce(m_gravity, ForceMode.Acceleration);
+            //}           
         }
 
 
@@ -35,7 +44,7 @@ namespace Assets.BHTree
 
             float pitchAngle = Mathf.Asin(Vector3.Cross(targetDirection.normalized, blackboard.parentObject.transform.forward).x) * Mathf.Rad2Deg;
             float yawAngle   = Mathf.Asin(Vector3.Cross(targetDirection.normalized, blackboard.parentObject.transform.forward).y) * Mathf.Rad2Deg;
-            float rollAngle  = Mathf.Asin(Vector3.Cross(targetDirection.normalized, blackboard.parentObject.transform.forward).z) * Mathf.Rad2Deg;
+            // float rollAngle  = Mathf.Asin(Vector3.Cross(targetDirection.normalized, blackboard.parentObject.transform.forward).z) * Mathf.Rad2Deg;
            
             // Add 90 degrees to Arcsin curve if destination is behind transform
             if (Vector3.Distance(destination, blackboard.parentObject.transform.position) <

@@ -16,38 +16,58 @@ namespace Assets.BHTree
             m_blackboard = blackboard;
             m_weapon = weapon;
 
+            AddBehaviour<Condition>().BCanRun = HasTarget;
+            AddBehaviour<Condition>().BCanRun = IsTargetingEnemy;
             AddBehaviour<Behaviour>().BUpdate = Reloading;
             AddBehaviour<Behaviour>().BUpdate = TakingAim;
             AddBehaviour<Behaviour>().BUpdate = OpeningFire;      
         }
 
 
-        private BHStatus TakingAim()
-        {          
-            if (m_blackboard.target)
-            {                
-                if ((m_blackboard.target.transform.position - m_blackboard.parentObject.transform.position).magnitude <= m_weapon.range)
+        private bool HasTarget()
+        {
+            if (m_blackboard.target != null)
+                return true;
+            else
+                return false;
+        }
+
+
+        private bool IsTargetingEnemy()
+        {
+            if (m_blackboard.target.GetComponent<Fighter>() != null)
+            {
+                if (m_blackboard.target.GetComponent<Fighter>().teamNumber != m_blackboard.fighter.teamNumber)
                 {
-                    // Debug.Log("Taking Aim (AnyKey to fire)");
-                    if (Vector3.Angle(m_blackboard.target.transform.position - m_blackboard.parentObject.transform.position, m_blackboard.parentObject.transform.forward) < m_weapon.accuracy)
-                    {
-                            // Debug.Log("Target locked, Weapons Free");
-                            return BHStatus.Success;
-                    }
-                    else if (Input.anyKeyDown)
-                    {
-                        return BHStatus.Success;
-                    }
-                    return BHStatus.Running;
+                    return true;
                 }
                 else
                 {
-                    // Debug.Log("Target not in Range");
-                    return BHStatus.Running;
-                }                
+                    return false;
+                }
             }
             else
+                return false;
+        }
+
+
+        private BHStatus TakingAim()
+        {                       
+            if ((m_blackboard.target.transform.position - m_blackboard.parentObject.transform.position).magnitude <= m_weapon.range)
+            {
+                // Debug.Log("Taking Aim (AnyKey to fire)");
+                if (Vector3.Angle(m_blackboard.target.transform.position - m_blackboard.parentObject.transform.position, m_blackboard.parentObject.transform.forward) < m_weapon.accuracy)
+                {
+                        // Debug.Log("Target locked, Weapons Free");
+                        return BHStatus.Success;
+                }
                 return BHStatus.Failure;
+            }
+            else
+            {
+                // Debug.Log("Target not in Range");
+                return BHStatus.Failure;
+            }          
         }
 
 

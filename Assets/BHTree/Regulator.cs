@@ -15,7 +15,7 @@ namespace Assets.BHTree
             Children.Add(behaviour);
             m_tickInterval = tickInterval;
             DefaultReturnStatus = BHStatus.Failure;
-            this.CanRun = TickTimer;
+            this.BCanRun = TickTimer;
         }
 
         private bool TickTimer()
