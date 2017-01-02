@@ -28,12 +28,15 @@ namespace Assets.BHTree
 
                 Selector retreat = engageOrRetreat.AddBehaviour<Selector>();
                 {
+                    // look for friends and such;
+
                     Sequence goHome = retreat.AddBehaviour<Sequence>();
                     {
                         goHome.AddBehaviour<Condition>().BCanRun = HasMothership;
                         goHome.AddBehaviour<Behaviour>().BUpdate = TargetMothership;
                     }
                 }
+                engageOrRetreat.AddBehaviour<Behaviour>().BUpdate = CommonBehaviours.AlwaysSucceed;
             }
         }
 

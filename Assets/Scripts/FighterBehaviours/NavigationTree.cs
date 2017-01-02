@@ -35,15 +35,10 @@ namespace Assets.BHTree
                         stayInFormation.AddBehaviour<Behaviour>().BUpdate = VectoringThrust;
                     }
                 }
+                shootOrTraverse.AddBehaviour<Behaviour>().BUpdate = CommonBehaviours.AlwaysSucceed;
             }
 
             AddBehaviour<Behaviour>().BUpdate = SetThrottle;
-
-            //Sequence stayInFormation = AddBehaviour<Sequence>();
-            //{
-            //    stayInFormation.AddBehaviour<Condition>().BCanRun = HasWingman;
-            //    stayInFormation.AddBehaviour<Behaviour>().BUpdate = VectoringThrust;                
-            //}
         }
 
 
@@ -55,7 +50,7 @@ namespace Assets.BHTree
                 {
                     // We desire a direction wich will cause intersect at current velocities
                     // Vector3 behindTarget = -(m_blackboard.target.GetComponent<Rigidbody>().velocity.normalized * (m_blackboard.fighter.weapon.range / 2)); // Good spot for _boldness                    
-                    m_desiredDirection = (m_blackboard.target.transform.position + m_blackboard.target.GetComponent<Rigidbody>().velocity * m_blackboard.tickInterval - m_propulsion.rigidbody.velocity * m_blackboard.tickInterval) - m_propulsion.rigidbody.position;
+                    m_desiredDirection = (m_blackboard.target.transform.position + m_blackboard.target.GetComponent<Rigidbody>().velocity * m_blackboard.tickInterval - m_propulsion.rigidbody.velocity * m_blackboard.tickInterval) - m_propulsion.rigidbody.position + m_blackboard.fighter.spaceManager.GetGravity(m_propulsion.rigidbody.position);
                     float leadingAmount =  Mathf.Clamp(((m_desiredDirection - m_propulsion.rigidbody.position).magnitude / m_propulsion.rigidbody.velocity.magnitude), 0, 1);
                     //m_desiredMovement = m_blackboard.target.transform.position + m_blackboard.target.GetComponent<Rigidbody>().velocity + -m_propulsion.rigidbody.velocity ; // maybe do a little fewer getComponents :)
                 }

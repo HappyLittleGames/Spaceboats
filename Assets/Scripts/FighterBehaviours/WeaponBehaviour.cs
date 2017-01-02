@@ -71,7 +71,7 @@ namespace Assets.BHTree
         {
             // Debug.Log("Opening Fire");
             GameObject hit = m_weapon.Pew(m_blackboard.parentObject.transform.position, m_blackboard.parentObject.transform.forward, 0.1f);
-            if (hit != null)
+            if (hit != null && hit.GetComponent<Fighter>() != null)
             {
                 // GameObject.Destroy(hit);
                 hit.GetComponent<Fighter>().isExploding = true;

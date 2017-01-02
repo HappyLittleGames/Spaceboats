@@ -6,7 +6,9 @@ public class ShipCounter : MonoBehaviour {
 
     public Vector3 averagePosition { get; private set; }
     public Dictionary<int, List<GameObject>> fighterTeams;
+    [SerializeField] GameObject m_explosion = null;
 
+    private SpaceManager m_spaceManager = null;
     private Assets.BHTree.Behaviour m_countShips = new Assets.BHTree.Behaviour();
 
     void Start ()
@@ -28,8 +30,12 @@ public class ShipCounter : MonoBehaviour {
                 {
                     if (fighter.GetComponent<Fighter>().isExploding)
                     {
+                        GameObject explosion = (GameObject)Instantiate(m_explosion, fighter.transform.position, fighter.transform.rotation);
+                        explosion.GetComponent<Rigidbody>().velocity = fighter.GetComponent<Rigidbody>().velocity;                        
+                        Destroy(explosion, 2f);
                         Destroy(fighter);
-                        Debug.Log("Trigger Eksplozionz!");
+                        
+                        // Debug.Log("Trigger Eksplozionz!");
                     }
                     else
                     {
@@ -37,7 +43,6 @@ public class ShipCounter : MonoBehaviour {
                         {
                             fighterTeams[fighter.GetComponent<Fighter>().teamNumber].Add(fighter);
                         }
-
                         averagePosition += fighter.transform.position;                        
                     }
                     averagePosition /= (fighterTeams[1].Count + fighterTeams[2].Count);
