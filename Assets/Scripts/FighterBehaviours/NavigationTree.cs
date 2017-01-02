@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Assets.BHTree
 {
@@ -10,7 +6,7 @@ namespace Assets.BHTree
     {
         private FighterBlackboard m_blackboard = null;
         private Propulsion m_propulsion = null;
-        private Vector3 m_desiredPosition = Vector3.zero;       
+        private Vector3 m_desiredDirection = Vector3.zero;       
         //private float m_orbitDistance = 10;
         private float m_topSpeed = 40;
         public NavigationTree(FighterBlackboard blackboard, Navigator navigator, Propulsion prop)
@@ -19,7 +15,7 @@ namespace Assets.BHTree
             m_propulsion = prop;
             m_topSpeed = prop.thrust * 5; // this is just bad
 
-            AddBehaviour<Behaviour>().BUpdate = SetTarget;
+            AddBehaviour<Behaviour>().BUpdate = GetDestinationToTarget;
             Selector shootOrTraverse = AddBehaviour<Selector>();
             {
                 // completely redundant
@@ -33,6 +29,11 @@ namespace Assets.BHTree
                 {                    
                     traverse.AddBehaviour<Behaviour>().BUpdate = Stabilize;
                     traverse.AddBehaviour<Behaviour>().BUpdate = SetDestination;
+                    Sequence stayInFormation = traverse.AddBehaviour<Sequence>();
+                    {
+                        stayInFormation.AddBehaviour<Condition>().BCanRun = HasWingman;
+                        stayInFormation.AddBehaviour<Behaviour>().BUpdate = VectoringThrust;
+                    }
                 }
             }
 
@@ -41,23 +42,26 @@ namespace Assets.BHTree
             //Sequence stayInFormation = AddBehaviour<Sequence>();
             //{
             //    stayInFormation.AddBehaviour<Condition>().BCanRun = HasWingman;
-            //    stayInFormation.AddBehaviour<Behaviour>().BUpdate = VectoringThrust;
-            //}            
+            //    stayInFormation.AddBehaviour<Behaviour>().BUpdate = VectoringThrust;                
+            //}
         }
 
 
-        private BHStatus SetTarget()
+        private BHStatus GetDestinationToTarget()
         {
             if (m_blackboard.target != null)
             {
                 if (m_blackboard.target.GetComponent<Rigidbody>() != null)
                 {
-                    Vector3 behindTarget = -(m_blackboard.target.GetComponent<Rigidbody>().velocity.normalized * (m_blackboard.fighter.weapon.range / 2)); // Good spot for _boldness
-                    m_desiredPosition = m_blackboard.target.transform.position - m_blackboard.parentObject.transform.position - m_propulsion.rigidbody.velocity + behindTarget;
+                    // We desire a direction wich will cause intersect at current velocities
+                    // Vector3 behindTarget = -(m_blackboard.target.GetComponent<Rigidbody>().velocity.normalized * (m_blackboard.fighter.weapon.range / 2)); // Good spot for _boldness                    
+                    m_desiredDirection = (m_blackboard.target.transform.position + m_blackboard.target.GetComponent<Rigidbody>().velocity * m_blackboard.tickInterval - m_propulsion.rigidbody.velocity * m_blackboard.tickInterval) - m_propulsion.rigidbody.position;
+                    float leadingAmount =  Mathf.Clamp(((m_desiredDirection - m_propulsion.rigidbody.position).magnitude / m_propulsion.rigidbody.velocity.magnitude), 0, 1);
+                    //m_desiredMovement = m_blackboard.target.transform.position + m_blackboard.target.GetComponent<Rigidbody>().velocity + -m_propulsion.rigidbody.velocity ; // maybe do a little fewer getComponents :)
                 }
                 else
-                {
-                    m_desiredPosition = m_blackboard.target.transform.position - m_blackboard.parentObject.transform.position - m_propulsion.rigidbody.velocity;
+                {   // not a good situation
+                    m_desiredDirection = m_blackboard.target.transform.position - m_blackboard.parentObject.transform.position - m_propulsion.rigidbody.velocity * m_blackboard.tickInterval;
                 }
                 return BHStatus.Success;
             }
@@ -86,18 +90,18 @@ namespace Assets.BHTree
         private BHStatus Stabilize()
         {
             // Debug.Log("magnitude of velocity = " + m_propulsion.rigidbody.velocity.magnitude + ", velocity taking us further from destination.");
-            if (Vector3.Distance(m_blackboard.parentObject.transform.position + m_propulsion.rigidbody.velocity.normalized, m_desiredPosition) >
-                Vector3.Distance(m_blackboard.parentObject.transform.position, m_desiredPosition))
+            if (Vector3.Distance(m_blackboard.parentObject.transform.position + m_propulsion.rigidbody.velocity.normalized, m_desiredDirection) >
+                Vector3.Distance(m_blackboard.parentObject.transform.position, m_desiredDirection))
             {
                 // Debug.Log("Setting destination to opposite velocity");
-                m_desiredPosition = (-m_propulsion.rigidbody.velocity.normalized * m_topSpeed * 1000) - m_blackboard.parentObject.transform.position;
+                m_desiredDirection = (-m_propulsion.rigidbody.velocity.normalized * m_topSpeed * 100) - m_blackboard.parentObject.transform.position;
                 return BHStatus.Success;
             }
             // but if speed is too damn high, the tickrate on scans is too low for updating the destinations like this
             if (m_propulsion.rigidbody.velocity.magnitude > m_topSpeed)
             {
                 // Debug.Log("Setting destination to opposite velocity");
-                m_desiredPosition = (-m_propulsion.rigidbody.velocity.normalized * m_topSpeed * 1000) - m_blackboard.parentObject.transform.position;
+                m_desiredDirection = (-m_propulsion.rigidbody.velocity.normalized * m_topSpeed * 100) - m_blackboard.parentObject.transform.position;
                 return BHStatus.Success;
             }
 
@@ -108,16 +112,17 @@ namespace Assets.BHTree
 
         private BHStatus SetDestination()
         {               
-            m_blackboard.navigator.destination = m_desiredPosition;
+            m_blackboard.navigator.destination = m_desiredDirection;
+            //Debug.DrawLine(m_propulsion.rigidbody.position,  m_propulsion.rigidbody.position + m_desiredDirection, Color.blue, 0.1f);
             return BHStatus.Success;
         }
 
 
         private BHStatus SetThrottle()
         {
-            if (Vector3.Angle(m_blackboard.parentObject.transform.forward, m_blackboard.navigator.destination) < 15)
+            if (Vector3.Angle(m_blackboard.parentObject.transform.forward, m_desiredDirection) < 15)
             {
-                // maybe some more clever throttling?
+                // maybe some more clever throttling ffs???????
                 m_blackboard.navigator.thrustThrottle = 1;                
             }
             return BHStatus.Success;
@@ -137,7 +142,7 @@ namespace Assets.BHTree
         private BHStatus VectoringThrust()
         {
             float distance = Vector3.Distance(m_blackboard.parentObject.transform.position, m_blackboard.wingMan.transform.position);
-            float m_squadTightness = 10;            
+            float m_squadTightness = 20;            
             Vector3 direction = m_blackboard.wingMan.transform.position - m_blackboard.parentObject.transform.position;  // maintain distance
             float vectoringAmount = distance - m_squadTightness;
             m_propulsion.VectoringThrust(direction, vectoringAmount, Time.fixedDeltaTime);
@@ -151,7 +156,7 @@ namespace Assets.BHTree
 
         private BHStatus AlwaysFails()
         {
-            // Debug.Log("End of NavTree");
+            Debug.Log("End of NavTree");
             return BHStatus.Failure;
         }
     }

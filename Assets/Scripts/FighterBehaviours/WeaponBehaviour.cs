@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+﻿    using UnityEngine;
 
 namespace Assets.BHTree
 {
@@ -74,10 +70,11 @@ namespace Assets.BHTree
         private BHStatus OpeningFire()
         {
             // Debug.Log("Opening Fire");
-            GameObject hit = m_weapon.DebugPew(m_blackboard.parentObject.transform.position, m_blackboard.parentObject.transform.forward, 0.1f);
+            GameObject hit = m_weapon.Pew(m_blackboard.parentObject.transform.position, m_blackboard.parentObject.transform.forward, 0.1f);
             if (hit != null)
             {
-                GameObject.Destroy(hit);
+                // GameObject.Destroy(hit);
+                hit.GetComponent<Fighter>().isExploding = true;
             }
             return BHStatus.Success;
         }

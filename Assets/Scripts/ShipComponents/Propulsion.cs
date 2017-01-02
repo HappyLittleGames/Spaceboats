@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
 
 
 public class Propulsion
@@ -73,15 +69,15 @@ public class Propulsion
     /// Direction vector to apply thrust.
     /// </param>
     /// <param name="throttle">
-    /// Throttle clamped from 0 to 1 to scale the velocity per second.
+    /// Desired throttle, clamped from -1 to 1 (inverse to actual).
     /// </param>
     /// <param name="fixedDeltaTime">
     /// Fixed Delta Seconds from UnityEngine.
     /// </param>
     public void VectoringThrust(Vector3 direction, float throttle, float fixedDeltaTime)
     {
-        float amount = 1 - Mathf.Clamp(throttle, 0f, 1f);
-        rigidbody.AddForce((direction.normalized * (vectoringThrust * amount)) * fixedDeltaTime, ForceMode.Impulse); // impulse mode
+        float amount = 1 - Mathf.Clamp(throttle, -1f, 1f);
+        rigidbody.AddForce((direction.normalized * (vectoringThrust * amount)) * fixedDeltaTime, ForceMode.Acceleration); // impulse mode
     }
 
 
@@ -93,9 +89,6 @@ public class Propulsion
     /// </param>
     /// <param name="input">
     /// "pitch", "yaw", or "roll" along the transform axis.
-    /// </param>
-    /// <param name="throttle">
-    /// Desired throttle, clamped from 0 to 1 (left to right).
     /// </param>
     public void Rotate(string input, Vector3 rotation)
     {
@@ -125,15 +118,19 @@ public class Propulsion
     /// <summary>
     ///  Poorly implemented Slerping towards a direction.
     /// </summary>
-    /// <param name="destination">
+    /// <param name="desiredDirection">
     /// The point to turn towards.
     /// </param>
-    public void FakeRotate(Vector3 destination, float deltaTime)
+    public void FakeRotate(Vector3 desiredDirection, float deltaTime)
     {
-        Quaternion direction = Quaternion.LookRotation(destination);
-        direction = Quaternion.Slerp(rigidbody.rotation, direction, turnRate * deltaTime);
-        rigidbody.angularVelocity = Vector3.zero;
-        rigidbody.MoveRotation(direction);
+        if (desiredDirection != Vector3.zero && desiredDirection.magnitude != 0.0f)
+        {
+            Quaternion direction = Quaternion.LookRotation(desiredDirection);
+            direction = Quaternion.Slerp(rigidbody.rotation, direction, turnRate * deltaTime);
+            rigidbody.angularVelocity = Vector3.zero;
+
+            rigidbody.MoveRotation(direction);
+        }
     }
 }
 

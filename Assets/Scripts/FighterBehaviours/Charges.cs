@@ -17,7 +17,7 @@ namespace Assets.BHTree
             m_blackboard = blackboard;
             m_charges = amount;
             m_capacity = capacity;
-
+                       
             AddBehaviour<Behaviour>().BUpdate = UseCharges;
             AddBehaviour<Condition>().BCanRun = IsOutOfCharges;
             AddBehaviour<Behaviour>().BUpdate = NeedsRecharge;

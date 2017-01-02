@@ -12,10 +12,13 @@ namespace Assets.Scripts
         [SerializeField] private int m_teamNumber = 0;
         [SerializeField] private float m_thrust = 10;
         [SerializeField] private float m_turnRate = 4;
-        
+        [SerializeField] private SpaceManager m_spaceManager = null;
 
-
-
+        public void Start()
+        {
+            m_spaceManager = GameObject.FindGameObjectWithTag("SpaceManager").GetComponent<SpaceManager>();
+            m_spaceManager.shipCounter.fighterTeams.Add(m_teamNumber, new List<GameObject>());
+        }
 
         public void Update()
         {
@@ -37,6 +40,7 @@ namespace Assets.Scripts
             fighter.SetTurnRate(m_turnRate);
             fighter.mothership = gameObject;
             fighter.teamNumber = m_teamNumber;
+            fighter.spaceManager = m_spaceManager;
         }
 
         public void AlterTurnRate(float change)

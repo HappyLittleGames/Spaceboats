@@ -1,38 +1,47 @@
 ﻿using UnityEngine;
-using System.Collections;
-using UnityEngine.UI;
+using System.Collections.Generic;
 using Assets.BHTree;
 
 public class ShipCounter : MonoBehaviour {
 
-    public string teamOneCount { get; private set; }
-    public string teamTwoCount { get; private set; }
     public Vector3 averagePosition { get; private set; }
+    public Dictionary<int, List<GameObject>> fighterTeams;
 
     private Assets.BHTree.Behaviour m_countShips = new Assets.BHTree.Behaviour();
 
     void Start ()
     {
-        teamOneCount = "#0";
-        teamTwoCount = "#0";
+        fighterTeams = new Dictionary<int, List<GameObject>>();
+
         averagePosition = Vector3.zero;
 
         m_countShips.BUpdate = () =>
             {
-                int total = 0;
-                int team1 = 0;
                 averagePosition = Vector3.zero;
+
+                for (int i = 1; i <= fighterTeams.Keys.Count; i++)
+                {
+                    fighterTeams[i].Clear();
+                }
+
                 foreach (GameObject fighter in GameObject.FindGameObjectsWithTag("Fighter"))
                 {
-                    total++;
-                    if (fighter.GetComponent<Fighter>().teamNumber == 1)
-                        team1++;
+                    if (fighter.GetComponent<Fighter>().isExploding)
+                    {
+                        Destroy(fighter);
+                        Debug.Log("Trigger Eksplozionz!");
+                    }
+                    else
+                    {
+                        if (fighter.GetComponent<Fighter>())
+                        {
+                            fighterTeams[fighter.GetComponent<Fighter>().teamNumber].Add(fighter);
+                        }
 
-                    averagePosition += fighter.transform.position;
-                    averagePosition /= total;
+                        averagePosition += fighter.transform.position;                        
+                    }
+                    averagePosition /= (fighterTeams[1].Count + fighterTeams[2].Count);
                 }
-                teamOneCount = "#" + team1;
-                teamTwoCount = "#" + (total - team1);
 
                 //try that freaky camera shit while we are at it
 
@@ -45,5 +54,22 @@ public class ShipCounter : MonoBehaviour {
 	void Update ()
     {
         m_countShips.BTick();
+    }
+
+
+    private void ExplodeFighters()
+    {
+        foreach (int key in fighterTeams.Keys)
+        {
+            for (int j = fighterTeams[key].Count; j >= 0; j--)
+            {
+                if (fighterTeams[key][j].GetComponent<Fighter>().isExploding)
+                {
+                    GameObject toExplode = fighterTeams[key][j];
+                    fighterTeams[key].Remove(fighterTeams[key][j]);
+                    Destroy(toExplode);
+                }
+            }
+        }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 
 [RequireComponent(typeof(ShipCounter))]
 public class SpaceManager : MonoBehaviour {
@@ -9,21 +8,18 @@ public class SpaceManager : MonoBehaviour {
     [SerializeField] private Text teamOneCount;
     [SerializeField] private Text teamTwoCount;
     [SerializeField] private Camera m_camera = null;
-    private ShipCounter m_shipCounter = null;
+    public ShipCounter shipCounter { get; private set; }
     [SerializeField] private GameObject m_planet = null;
     float m_gravityAtPlanet = 65000000;
 
     void Start()
     {
-        m_shipCounter = gameObject.GetComponent<ShipCounter>();
+        shipCounter = gameObject.GetComponent<ShipCounter>();
 
         teamOneCount.text = "#0";
         teamTwoCount.text = "#0";
-
-
     }
-
-
+    
 
     void FixedUpdate()
     {
@@ -34,14 +30,34 @@ public class SpaceManager : MonoBehaviour {
     void Update()
     {
         if (teamOneCount != null)        
-            teamOneCount.text = m_shipCounter.teamOneCount;
+            teamOneCount.text = "#" + shipCounter.fighterTeams[1].Count;
         if (teamTwoCount != null)
-            teamTwoCount.text = m_shipCounter.teamTwoCount;
-            
+            teamTwoCount.text = "#" + shipCounter.fighterTeams[2].Count;
+
+        UpdateCamera(Time.deltaTime);
+    }
+
+
+    private void UpdateCamera(float deltaTime)
+    {
         if (m_camera != null)
         {
-            Quaternion smoothRotation = Quaternion.LookRotation(m_shipCounter.averagePosition - m_camera.transform.position);
-            m_camera.transform.rotation = Quaternion.Slerp(m_camera.transform.rotation, smoothRotation, 1f * Time.deltaTime);
+            if (shipCounter.averagePosition != Vector3.zero)
+            {
+                Quaternion smoothRotation = Quaternion.LookRotation(shipCounter.averagePosition - m_camera.transform.position);
+                m_camera.transform.rotation = Quaternion.Slerp(m_camera.transform.rotation, smoothRotation, 1f * Time.deltaTime);                
+                m_camera.transform.position += new Vector3(Random.Range(0, 20), Random.Range(0, 20), Random.Range(0, 20)) * deltaTime;
+            }
+
+            var change = Input.GetAxis("Mouse ScrollWheel");
+            if (change > 0f)
+            {
+                AlterZoom(-2);
+            }
+            else if (change < 0f)
+            {
+                AlterZoom(2);
+            }
         }
     }
 
@@ -59,7 +75,7 @@ public class SpaceManager : MonoBehaviour {
     {
         if (m_planet != null)
         {
-            // use fields for torps
+            // use fields for torps though
             // en.wikipedia.org/wiki/Newton's_law_of_universal_gravitation#Vector_form
 
             float gravityOverDistance = m_gravityAtPlanet / Vector3.SqrMagnitude(m_planet.transform.position - myPosition);

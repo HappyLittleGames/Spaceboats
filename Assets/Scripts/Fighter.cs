@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
 using Assets.BHTree;
 
 public class Fighter : MonoBehaviour
@@ -18,6 +14,11 @@ public class Fighter : MonoBehaviour
     public GameObject weaponVisuals { private get; set; }
     public GameObject mothership { get; set; }
     public SpaceManager spaceManager { get; set; }
+    // editor variables
+    [SerializeField] public bool isExploding = false;
+    [SerializeField] public bool manualOverride = false;
+
+
 
     void Start()
     {
@@ -25,7 +26,7 @@ public class Fighter : MonoBehaviour
         weaponVisuals = gameObject.transform.Find("visibleLazer").gameObject;
         weaponVisuals.transform.parent = gameObject.transform;
 
-        weapon = (gameObject.tag == "Team1") ? new Weapon(Color.red, 20.0f, 20.0f, weaponVisuals) : new Weapon(Color.green, 20.0f, 20.0f, weaponVisuals);
+        weapon = (gameObject.tag == "Team1") ? new Lazer(Color.red, 20.0f, 20.0f, weaponVisuals) : new Lazer(Color.green, 20.0f, 20.0f, weaponVisuals);
         m_rigidbody = gameObject.AddComponent<Rigidbody>();
         m_rigidbody.useGravity = false;
         m_propulsion = new Propulsion(m_rigidbody, gameObject, m_thrust, m_turnRate);
@@ -38,7 +39,10 @@ public class Fighter : MonoBehaviour
     void FixedUpdate()
     {
         m_rigidbody.AddForce(spaceManager.GetGravity(m_rigidbody.position), ForceMode.Acceleration);
-        m_blackboard.navigator.Navigate(Time.fixedDeltaTime);
+        if (!manualOverride)
+        {
+            m_blackboard.navigator.Navigate(Time.fixedDeltaTime);
+        }
         ManualSteering();
     }
 
@@ -55,10 +59,12 @@ public class Fighter : MonoBehaviour
     void Update()
     {
         m_blackboard.BlackboardUpdate();
+        weapon.Update(Time.deltaTime);
         if (weaponVisuals)
         {
             float shrinkRate = 3f * Time.deltaTime;
             weaponVisuals.transform.localScale = new Vector3(Mathf.Clamp01(weaponVisuals.transform.localScale.x - shrinkRate), weaponVisuals.transform.localScale.y, Mathf.Clamp01(weaponVisuals.transform.localScale.z - shrinkRate));
+            weapon.Update(Time.deltaTime);
         }
     }
 

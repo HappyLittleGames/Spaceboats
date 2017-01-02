@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.BHTree
@@ -18,45 +15,67 @@ namespace Assets.BHTree
         public GameObject target { get; set; }
         public GameObject wingMan { get; set; }
         public GameObject mothership { get; set; }
-        public List<GameObject> enemies { get; set; }
-        public List<GameObject> friendlies { get; set; }
+        public SpaceManager spaceManager { get; private set; }
 
         public FighterBlackboard(Fighter fighter, GameObject parentObject)
         {
             this.fighter = fighter;
             this.parentObject = parentObject;
             mothership = fighter.mothership;
-            m_tickInterval = .1f; // some variance in update speed because some dudes are faster than others
-            m_tickInterval = UnityEngine.Random.Range(-m_tickInterval * .1f, m_tickInterval * .1f) + m_tickInterval;
-            enemies = new List<GameObject>();
-            friendlies = new List<GameObject>();
+            tickInterval = .1f; // some variance in update speed because some dudes are faster than others
+            tickInterval = UnityEngine.Random.Range(-tickInterval * .1f, tickInterval * .1f) + tickInterval;
+            spaceManager = fighter.spaceManager;
 
         }
+
 
         public void AddScanner()
         {
             scanningBehaviour = new ScanningBehaviour(this);
-            scanningBehaviour = new Regulator(scanningBehaviour, m_tickInterval);
+            scanningBehaviour = new Regulator(scanningBehaviour, tickInterval);
         }
+
 
         public void AddWeapon(Weapon weapon)
         {
             weaponBehaviour = new WeaponBehaviour(this, weapon);
-            weaponBehaviour = new Regulator(weaponBehaviour, m_tickInterval);
+            weaponBehaviour = new Regulator(weaponBehaviour, tickInterval);
         }
+
 
         public void AddNavigation(Propulsion prop)
         {
             navigator = new Navigator(prop);
             navigationTree = new NavigationTree(this, navigator, prop);
-            navigationTree = new Regulator(navigationTree, m_tickInterval);
+            navigationTree = new Regulator(navigationTree, tickInterval);
         }        
+
 
         public override void BlackboardUpdate()
         {
             scanningBehaviour.BTick();
             weaponBehaviour.BTick();
             navigationTree.BTick();
+        }
+
+
+        public List<GameObject> GetFriendlies()
+        {
+           return spaceManager.shipCounter.fighterTeams[fighter.teamNumber];
+        }
+
+
+        public List<GameObject> GetEnemies()
+        {
+            List<GameObject> enemies = new List<GameObject>();
+            for (int i = 1; i <= spaceManager.shipCounter.fighterTeams.Count; i++)
+            {
+                if (i != fighter.teamNumber)
+                {
+                    enemies.AddRange(spaceManager.shipCounter.fighterTeams[i]);
+                }
+            }
+            return enemies;
         }
     }
 }
