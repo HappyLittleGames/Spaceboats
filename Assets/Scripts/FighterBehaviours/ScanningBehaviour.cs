@@ -112,7 +112,7 @@ namespace Assets.BHTree
 
         private BHStatus TargetMothership()
         {
-            Debug.Log("Going home");
+            // Debug.Log("Going home");
             m_blackboard.wingMan = m_blackboard.mothership;
             return BHStatus.Success;
         }
