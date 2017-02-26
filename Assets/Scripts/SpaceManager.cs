@@ -69,7 +69,7 @@ public class SpaceManager : MonoBehaviour {
     }
 
 
-    // Mr Percy McPersonface at https://forum.unity3d.com/threads/click-drag-camera-movement.39513/
+    // courtesy of Mr Percy McPersonface https://forum.unity3d.com/threads/click-drag-camera-movement.39513/
     private void DragCamera()
     {
         if (Input.GetMouseButtonDown(0))
