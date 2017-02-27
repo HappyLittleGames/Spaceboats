@@ -22,15 +22,6 @@ public class Propulsion
         
     }
 
-
-    /// <summary>
-    ///  Applies throttle in the direction of the centre of mass.
-    /// </summary>
-    /// <param name="throttle">
-    /// Throttle clamped 0-1 to scale the trottle amount
-    /// <param name="fixedDeltaTime">
-    /// Fixed Delta Seconds from UnityEngine.
-    /// </param>
     public void ApplyThrottle(float throttle, float fixedDeltaTime)
     {
         {
@@ -43,53 +34,20 @@ public class Propulsion
         }
     }
 
-
-    /// <summary>
-    ///  Reduces momentum by applying a throttled force in the direction inverse to current velocity.
-    /// </summary>
-    /// <param name="throttle">
-    /// Throttle clamped 0-1 to scale the velocity per second.
-    /// </param>
-    /// <param name="fixedDeltaTime">
-    /// Fixed Delta Seconds from UnityEngine.
-    /// </param>
     public void ApplyGravBreak(float throttle, float fixedDeltaTime)
     {
         float amount = 1 - Mathf.Clamp(throttle, 0f, 1f);
         Vector3 reverseThrust = -rigidbody.velocity.normalized;
         rigidbody.AddForce((reverseThrust * thrust * amount) * fixedDeltaTime, ForceMode.Impulse);
-        Debug.DrawRay(m_rootObject.transform.position, rigidbody.velocity * (thrust * -amount * fixedDeltaTime));
+        //Debug.DrawRay(m_rootObject.transform.position, rigidbody.velocity * (thrust * -amount * fixedDeltaTime));
     }
 
-
-    /// <summary>
-    ///  Applies vectoring thrust in any direction, determined by strength of thrust in propulsion and it's throttle.
-    /// </summary>
-    ///     /// <param name="direction">
-    /// Direction vector to apply thrust.
-    /// </param>
-    /// <param name="throttle">
-    /// Desired throttle, clamped from -1 to 1 (inverse to actual).
-    /// </param>
-    /// <param name="fixedDeltaTime">
-    /// Fixed Delta Seconds from UnityEngine.
-    /// </param>
     public void VectoringThrust(Vector3 direction, float throttle, float fixedDeltaTime)
     {
         float amount = 1 - Mathf.Clamp(throttle, -1f, 1f);
         rigidbody.AddForce((direction.normalized * (vectoringThrust * amount)) * fixedDeltaTime, ForceMode.Acceleration); // impulse mode
     }
 
-
-    /// <summary>
-    ///  Applies some torque, per axis
-    /// </summary>
-    ///     /// <param name="direction">
-    /// Direction vector to apply thrust.
-    /// </param>
-    /// <param name="input">
-    /// "pitch", "yaw", or "roll" along the transform axis.
-    /// </param>
     public void Rotate(string input, Vector3 rotation)
     {
         //Rigidbody.AddRelativeTorque(rotation.normalized * m_turnRate * amount, ForceMode.Force);
@@ -114,13 +72,6 @@ public class Propulsion
         }
     }
 
-
-    /// <summary>
-    ///  Poorly implemented Slerping towards a direction.
-    /// </summary>
-    /// <param name="desiredDirection">
-    /// The point to turn towards.
-    /// </param>
     public void FakeRotate(Vector3 desiredDirection, float deltaTime)
     {
         if (desiredDirection != Vector3.zero && desiredDirection.magnitude != 0.0f)

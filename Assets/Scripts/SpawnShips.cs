@@ -8,7 +8,9 @@ namespace Assets.Scripts
 {
     class SpawnShips : MonoBehaviour
     {
+        [SerializeField] private string m_spawnKey = null;
         [SerializeField] private GameObject m_shipType = null;
+        [SerializeField] public GameObject enemyMothership = null;
         [SerializeField] private int m_teamNumber = 0;
         [SerializeField] private float m_thrust = 10;
         [SerializeField] private float m_turnRate = 4;
@@ -30,6 +32,10 @@ namespace Assets.Scripts
             {
                 SpawnShip();
             }
+            if (Input.GetButton(m_spawnKey))
+            {
+                SpawnShip();
+            }
         }
 
         public void SpawnShip()
@@ -41,6 +47,7 @@ namespace Assets.Scripts
             fighter.mothership = gameObject;
             fighter.teamNumber = m_teamNumber;
             fighter.spaceManager = m_spaceManager;
+            fighter.enemyMothership = enemyMothership;
         }
 
         public void AlterTurnRate(float change)

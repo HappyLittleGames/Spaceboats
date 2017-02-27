@@ -27,23 +27,23 @@ namespace Assets.BHTree
                 }
 
                 Selector retreat = engageOrRetreat.AddBehaviour<Selector>();
-                {
-                    // look for friends and such;
-
+                {                    
                     Sequence goHome = retreat.AddBehaviour<Sequence>();
                     {
                         goHome.AddBehaviour<Condition>().BCanRun = HasMothership;
                         goHome.AddBehaviour<Behaviour>().BUpdate = TargetMothership;
                     }
+                    goHome.AddBehaviour<Behaviour>().BUpdate = TargetEnemyMothership;
                 }
+                
                 engageOrRetreat.AddBehaviour<Behaviour>().BUpdate = CommonBehaviours.AlwaysSucceed;
             }
         }
 
 
-        private BHStatus AlwaysFails()
+        private BHStatus AlwaysFail()
         {
-            Debug.Log("End of ScanTree");
+            // Debug.Log("End of ScanTree");
             return BHStatus.Failure;
         }
 
@@ -101,7 +101,8 @@ namespace Assets.BHTree
         {
             if (m_blackboard.mothership != null)
             {
-                return true;
+                // Debug.Log("Gunna go home now");
+                return true;                
             }
             else
             {
@@ -114,6 +115,14 @@ namespace Assets.BHTree
         {
             // Debug.Log("Going home");
             m_blackboard.wingMan = m_blackboard.mothership;
+            return BHStatus.Success;
+        }
+
+
+        private BHStatus TargetEnemyMothership()
+        {
+            // Debug.Log("Going home");
+            m_blackboard.target = m_blackboard.fighter.enemyMothership;
             return BHStatus.Success;
         }
     }

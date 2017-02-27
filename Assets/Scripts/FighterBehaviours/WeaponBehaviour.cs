@@ -38,9 +38,13 @@ namespace Assets.BHTree
                     return true;
                 }
                 else
-                {
+                {                
                     return false;
                 }
+            }
+            if (m_blackboard.target == m_blackboard.fighter.enemyMothership)
+            {
+                return true;
             }
             else
                 return false;

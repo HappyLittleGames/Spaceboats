@@ -13,6 +13,7 @@ public class Fighter : MonoBehaviour
     public Weapon weapon { get; set; }
     public GameObject weaponVisuals { private get; set; }
     public GameObject mothership { get; set; }
+    public GameObject enemyMothership { get; set; }
     public SpaceManager spaceManager { get; set; }
     // editor variables
     [SerializeField] public bool isExploding = false;
@@ -38,23 +39,14 @@ public class Fighter : MonoBehaviour
 
     void FixedUpdate()
     {
+        // let's see if fixed workes just as fine
         m_rigidbody.AddForce(spaceManager.GetGravity(m_rigidbody.position), ForceMode.Acceleration);
         if (!manualOverride)
         {
             m_blackboard.navigator.Navigate(Time.fixedDeltaTime);
         }
-        ManualSteering();
+        //ManualSteering();
     }
-
-
-    private void InitializeBlackboard()
-    {
-        m_blackboard = new FighterBlackboard(this, gameObject);
-        m_blackboard.AddScanner();
-        m_blackboard.AddWeapon(weapon);
-        m_blackboard.AddNavigation(m_propulsion);
-    }
-
 
     void Update()
     {
@@ -68,6 +60,14 @@ public class Fighter : MonoBehaviour
         }
     }
 
+    private void InitializeBlackboard()
+    {
+        m_blackboard = new FighterBlackboard(this, gameObject);
+        m_blackboard.AddScanner();
+        m_blackboard.AddWeapon(weapon);
+        m_blackboard.AddNavigation(m_propulsion);
+    }
+    
 
     private void ManualSteering()
     {
@@ -81,7 +81,7 @@ public class Fighter : MonoBehaviour
         }
         if (Input.GetAxis("Roll") != 0)
         {
-            m_propulsion.Rotate("roll",transform.forward *  Input.GetAxis("Roll"));
+            m_propulsion.Rotate("roll", transform.forward * Input.GetAxis("Roll"));
         }
         if (Input.GetButton("Fire1")) // ctrl
         {

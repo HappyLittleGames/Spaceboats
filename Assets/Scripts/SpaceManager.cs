@@ -65,6 +65,11 @@ public class SpaceManager : MonoBehaviour {
             }
 
             DragCamera();
+
+            if (Input.GetKey(KeyCode.W))
+                AlterZoom(-2);
+            if (Input.GetKey(KeyCode.S))
+                AlterZoom(1);
         }
     }
 

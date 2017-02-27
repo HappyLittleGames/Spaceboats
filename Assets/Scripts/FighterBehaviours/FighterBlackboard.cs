@@ -22,8 +22,9 @@ namespace Assets.BHTree
             this.fighter = fighter;
             this.parentObject = parentObject;
             mothership = fighter.mothership;
-            tickInterval = .1f; // some variance in update speed because some dudes react faster than others
-            tickInterval = UnityEngine.Random.Range(-tickInterval * .1f, tickInterval * .1f) + tickInterval;
+            tickInterval = .1f;
+            // why not add some variance in update speed because some dudes react faster than others.
+            tickInterval = UnityEngine.Random.Range(-tickInterval * .2f, tickInterval * .2f) + tickInterval;
             spaceManager = fighter.spaceManager;
 
         }
